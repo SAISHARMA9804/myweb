@@ -1,0 +1,36 @@
+terraform:
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.0.0"
+    }
+  }
+}
+  provider "azurerm" {
+  features {}
+}
+
+module "resource_group":
+  source: ./modules/resource_group
+  name: "my-resource-group"
+  location: "eastus"
+
+module "vnet":
+  source: ./modules/vnet
+  name: "my-vnet"
+  resource_group_name: module.resource_group.name
+  address_space: ["10.0.0.0/16"]
+
+module "virtual_machine":
+  source: ./modules/virtual_machine
+  name: "my-vm"
+  resource_group_name: module.resource_group.name
+  vnet_name: module.vnet.name
+  subnet_name: "default"
+  vm_size: "Standard_DS2_v2"
+  admin_username: "adminuser"
+  admin_password: "adminpassword"
+  image_publisher: "Canonical"
+  image_offer: "UbuntuServer"
+  image_sku: "18.04-LTS"
